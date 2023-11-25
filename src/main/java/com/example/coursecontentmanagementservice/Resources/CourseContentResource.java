@@ -51,6 +51,16 @@ public class CourseContentResource
         return new ResponseEntity<CourseModule>(courseModule, HttpStatus.OK);
     }
 
+    @GetMapping("/getModuleDetailsById")
+    public ResponseEntity<CourseModule> getModuleDetailsById(@RequestHeader(HttpHeaders.AUTHORIZATION) String authToken,
+                                                             @PathParam("courseModuleId") int courseModuleId,
+                                                             @PathParam("courseId") int courseId) throws Exception {
+        // code that uses the language variable
+        CourseModule courseModule = courseContentService.getModuleDetailsById(authToken, courseModuleId,courseId);
+
+        return new ResponseEntity<CourseModule>(courseModule, HttpStatus.OK);
+    }
+
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<Object> handleException(CustomException exception) {
         logger.info("inside exception handler: {}",exception);

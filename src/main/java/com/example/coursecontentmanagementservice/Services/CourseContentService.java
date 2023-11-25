@@ -94,4 +94,30 @@ public class CourseContentService{
         }
     }
 
+    public CourseModule getModuleDetailsById(String authToken, int courseModuleId, int courseId) throws Exception {
+        if (courseModuleId == 0) {
+            throw new CustomException(new Exception("courseModuleId cannot be 0"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (courseId == 0) {
+            throw new CustomException(new Exception("courseId cannot be 0"), HttpStatus.BAD_REQUEST);
+        }
+
+        JSONObject userObj = getUserDetailsFromToken(authToken);
+        if (null == userObj || userObj.isEmpty()){
+            throw new CustomException(new Exception("User not Authorised"), HttpStatus.UNAUTHORIZED);
+        }
+        logger.info("user object : {}",userObj);
+
+        CourseModule courseModule = entityManager.find(CourseModule.class, courseModuleId);
+        ModuleType moduleType = entityManager.
+                find(ModuleType.class, courseModule.getModuleTypeId());
+        courseModule.setModuleType(moduleType);
+        if (courseModule.getCourseId() != courseId) {
+            throw new CustomException(new Exception("courseModuleId does not belong to courseId"), HttpStatus.BAD_REQUEST);
+        }
+
+        return courseModule;
+    }
+
 }
