@@ -15,6 +15,15 @@ public class CourseModule
     private Integer serialNumber;
     private String title;
 
+
+    private String description;
+    private String contentUrl;
+
+    private Integer moduleTypeId;
+
+    @Transient
+    private ModuleType moduleType;
+
     public Integer getId() {
         return id;
     }
@@ -55,15 +64,43 @@ public class CourseModule
         this.description = description;
     }
 
-    public String getUrl() {
-        return url;
+
+    public Integer getModuleTypeId() {
+        return moduleTypeId;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setModuleTypeId(Integer moduleTypeId) {
+        this.moduleTypeId = moduleTypeId;
     }
 
-    private String description;
-    private String url;
+    public ModuleType getModuleType() {
+        return moduleType;
+    }
 
+    public void setModuleType(ModuleType moduleType) {
+        this.moduleType = moduleType;
+    }
+
+    public String getContentUrl() {
+        return contentUrl;
+    }
+
+    public void setContentUrl(String contentUrl) {
+        this.contentUrl = contentUrl;
+    }
+
+
+    @Override
+    public String toString() {
+        return "CourseModule{" +
+                "id=" + id +
+                ", courseId=" + courseId +
+                ", serialNumber=" + serialNumber +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", contentUrl='" + contentUrl + '\'' +
+                ", moduleTypeId=" + moduleTypeId +
+                ", moduleType=" + moduleType +
+                '}';
+    }
 }
