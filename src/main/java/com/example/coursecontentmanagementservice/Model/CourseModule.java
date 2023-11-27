@@ -24,6 +24,9 @@ public class CourseModule
     @Transient
     private ModuleType moduleType;
 
+    @Transient
+    private Boolean isQuizSubmissionPossible = true;
+
     public Integer getId() {
         return id;
     }
@@ -89,6 +92,13 @@ public class CourseModule
         this.contentUrl = contentUrl;
     }
 
+    public Boolean getQuizSubmissionPossible() {
+        return isQuizSubmissionPossible;
+    }
+
+    public void setQuizSubmissionPossible(Boolean quizSubmissionPossible) {
+        isQuizSubmissionPossible = quizSubmissionPossible;
+    }
 
     @Override
     public String toString() {
@@ -101,6 +111,7 @@ public class CourseModule
                 ", contentUrl='" + contentUrl + '\'' +
                 ", moduleTypeId=" + moduleTypeId +
                 ", moduleType=" + moduleType +
+                ", isQuizSubmissionPossible=" + isQuizSubmissionPossible +
                 '}';
     }
 }

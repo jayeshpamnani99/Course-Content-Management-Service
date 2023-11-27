@@ -70,6 +70,14 @@ public class CourseContentService{
                 find(ModuleType.class, courseModule.getModuleTypeId());
         courseModule.setModuleType(moduleType);
 
+        if(courseModule.getModuleTypeId() == 2) {
+            JSONObject res = checkIfQuizSubmissionIsPossible(courseModuleId,
+                    courseModule.getCourseId(), userObj.getInt("id"));
+            if (null != res && !res.isEmpty()) {
+                courseModule.setQuizSubmissionPossible(res.getBoolean("isQuizSubmissionPossible"));
+            }
+        }
+
         return courseModule;
     }
 
@@ -90,6 +98,26 @@ public class CourseContentService{
             return jsonObject;
         } catch (Exception e) {
             logger.error("Error in API for auth!");
+            return null;
+        }
+    }
+
+    public JSONObject checkIfQuizSubmissionIsPossible(int moduleId, int courseId, int studentId) {
+        final String uri = "http://" + Constants.AWS_IP + ":8084/isQuizSubmissionPossible?courseModuleId="+ moduleId +"&courseId=" + courseId + "&studentId=" + studentId;
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+
+
+        try {
+            ResponseEntity<String> res = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+            String resBody = res.getBody();
+            JSONObject jsonObject = new JSONObject(resBody);
+            return jsonObject;
+        } catch (Exception e) {
+            logger.error("Error in API for checking quiz submission possible! {}",e.getMessage());
             return null;
         }
     }
