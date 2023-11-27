@@ -2,6 +2,10 @@ package com.example.coursecontentmanagementservice.Model;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @Table(name="course_module")
@@ -26,6 +30,9 @@ public class CourseModule
 
     @Transient
     private Boolean isQuizSubmissionPossible = true;
+
+    @Transient
+    private Map quizSubmissionDetails;
 
     public Integer getId() {
         return id;
@@ -100,6 +107,14 @@ public class CourseModule
         isQuizSubmissionPossible = quizSubmissionPossible;
     }
 
+    public Map getQuizSubmissionDetails() {
+        return quizSubmissionDetails;
+    }
+
+    public void setQuizSubmissionDetails(JSONObject quizSubmissionDetails) {
+        this.quizSubmissionDetails = quizSubmissionDetails.toMap();
+    }
+
     @Override
     public String toString() {
         return "CourseModule{" +
@@ -112,6 +127,7 @@ public class CourseModule
                 ", moduleTypeId=" + moduleTypeId +
                 ", moduleType=" + moduleType +
                 ", isQuizSubmissionPossible=" + isQuizSubmissionPossible +
+                ", quizSubmissionDetails=" + quizSubmissionDetails +
                 '}';
     }
 }

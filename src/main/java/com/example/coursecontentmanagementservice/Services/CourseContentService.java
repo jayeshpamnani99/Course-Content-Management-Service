@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CourseContentService{
@@ -75,6 +76,9 @@ public class CourseContentService{
                     courseModule.getCourseId(), userObj.getInt("id"));
             if (null != res && !res.isEmpty()) {
                 courseModule.setQuizSubmissionPossible(res.getBoolean("isQuizSubmissionPossible"));
+                if (!courseModule.getQuizSubmissionPossible()){
+                    courseModule.setQuizSubmissionDetails((JSONObject) res.get("quizSubmission"));
+                }
             }
         }
 
