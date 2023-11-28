@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 @SpringBootTest
 public class CourseContentServiceTest {
 
@@ -42,28 +42,36 @@ public class CourseContentServiceTest {
 
     @Mock
     private RestTemplate restTemplate;
+
+    @Spy
     @InjectMocks
     private CourseContentService courseContentService;
 
-//    @Test
-//    public void testGetModuleDetailsFull_success() throws Exception {
-//        // Mock response from getUserDetailsFromToken
-//        JSONObject userObj = new JSONObject();
-//        userObj.put("id", 1);
+    @Test
+    public void testGetModuleDetailsFull_success() throws Exception {
+        // Mock response from getUserDetailsFromToken
+        JSONObject userObj = new JSONObject();
+        userObj.put("id", 1);
 //        when(courseContentService.getUserDetailsFromToken("authToken")).thenReturn(userObj);
-//
-//        // Mock response from checkIfQuizSubmissionIsPossible
-//        JSONObject quizSubmissionResponse = new JSONObject();
-//        quizSubmissionResponse.put("isQuizSubmissionPossible", true);
+        doReturn(userObj).when(courseContentService).getUserDetailsFromToken("authToken");
+
+        // Mock response from checkIfQuizSubmissionIsPossible
+        JSONObject quizSubmissionResponse = new JSONObject();
+        quizSubmissionResponse.put("isQuizSubmissionPossible", true);
 //        when(courseContentService.checkIfQuizSubmissionIsPossible(1, 1, 1)).thenReturn(quizSubmissionResponse);
-//
-//        // Call the method under test
-//        CourseModule actualCourseModule = courseContentService.getModuleDetailsFull("authToken", 1);
-//
-//        // Verify the results
-//        assertNotNull(actualCourseModule);
-//        //assertTrue(actualCourseModule.isQuizSubmissionPossible());
-//    }
+        doReturn(quizSubmissionResponse).when(courseContentService).checkIfQuizSubmissionIsPossible(1, 1, 1);
+
+        CourseModule courseModule = new CourseModule();
+        courseModule.setCourseId(1);
+        courseModule.setModuleTypeId(1);
+        when(entityManager.find(CourseModule.class, 1)).thenReturn(courseModule);
+        // Call the method under test
+        CourseModule actualCourseModule = courseContentService.getModuleDetailsFull("authToken", 1);
+
+        // Verify the results
+        assertNotNull(actualCourseModule);
+        //assertTrue(actualCourseModule.isQuizSubmissionPossible());
+    }
 
     @Test
     public void testGetCourseModuleDetails_invalidCourseId() {
@@ -108,21 +116,25 @@ public class CourseContentServiceTest {
         assertThrows(CustomException.class, () -> courseContentService.getCourseModuleDetails(authToken, courseId));
     }
 
-//    @Test
-//    public void testGetCourseModuleDetails_validRequest() throws Exception {
-//        int courseId = 1;
-//        String authToken = "dummyToken";
-//
-//        List<CourseModule> expectedCourseModules = new ArrayList<>();
-//        expectedCourseModules.add(new CourseModule());
-//
-//        Mockito.when(courseModuleDao.findByCourseId(courseId)).thenReturn(expectedCourseModules);
+    @Test
+    public void testGetCourseModuleDetails_validRequest() throws Exception {
+        int courseId = 1;
+        String authToken = "dummyToken";
+
+        List<CourseModule> expectedCourseModules = new ArrayList<>();
+        expectedCourseModules.add(new CourseModule());
+
+        Mockito.when(courseModuleDao.findByCourseId(courseId)).thenReturn(expectedCourseModules);
 //        Mockito.when(courseContentService.getUserDetailsFromToken(authToken)).thenReturn(new JSONObject());
-//
-//        List<CourseModule> actualCourseModules = courseContentService.getCourseModuleDetails(authToken, courseId);
-//
-//        assertEquals(expectedCourseModules, actualCourseModules);
-//    }
+        JSONObject userObj = new JSONObject();
+        userObj.put("id", 1);
+        userObj.put("roleName", "student");
+        doReturn(userObj).when(courseContentService).getUserDetailsFromToken(authToken);
+
+        List<CourseModule> actualCourseModules = courseContentService.getCourseModuleDetails(authToken, courseId);
+
+        assertEquals(expectedCourseModules, actualCourseModules);
+    }
 
     @Test
     public void testGetModuleDetailsFull_invalidModuleId() {
@@ -132,34 +144,41 @@ public class CourseContentServiceTest {
         assertThrows(CustomException.class, () -> courseContentService.getModuleDetailsFull(authToken, courseModuleId));
     }
 
-//    @Test
-//    public void testGetModuleDetailsFull_invalidUser() {
-//        int courseModuleId = 1;
-//        String authToken = "dummyToken";
-//
-//        Mockito.when(entityManager.find(CourseModule.class, courseModuleId)).thenReturn(null);
-//        Mockito.when(courseContentService.getUserDetailsFromToken(authToken)).thenReturn(null);
-//
-//        assertThrows(CustomException.class, () -> courseContentService.getModuleDetailsFull(authToken, courseModuleId));
-//    }
+    @Test
+    public void testGetModuleDetailsFull_invalidUser() {
+        int courseModuleId = 1;
+        String authToken = "dummyToken";
 
-//    @Test
-//    public void testGetModuleDetailsFull_validRequest() throws Exception {
-//        int courseModuleId = 1;
-//        int courseId = 1;
-//        String authToken = "dummyToken";
-//
-//        CourseModule courseModule = new CourseModule();
-//        ModuleType moduleType = new ModuleType();
-//
-//        Mockito.when(entityManager.find(CourseModule.class, courseModuleId)).thenReturn(courseModule);
-//        Mockito.when(entityManager.find(ModuleType.class, courseModule.getModuleTypeId())).thenReturn(moduleType);
+        Mockito.when(entityManager.find(CourseModule.class, courseModuleId)).thenReturn(null);
+//        Mockito.when(courseContentService.getUserDetailsFromToken(authToken)).thenReturn(null);
+        doReturn(null).when(courseContentService).getUserDetailsFromToken(authToken);
+
+        assertThrows(CustomException.class, () -> courseContentService.getModuleDetailsFull(authToken, courseModuleId));
+    }
+
+    @Test
+    public void testGetModuleDetailsFull_validRequest() throws Exception {
+        int courseModuleId = 1;
+        int courseId = 1;
+        String authToken = "dummyToken";
+
+        CourseModule courseModule = new CourseModule();
+        courseModule.setModuleTypeId(1);
+        courseModule.setCourseId(courseId);
+        ModuleType moduleType = new ModuleType();
+
+        Mockito.when(entityManager.find(CourseModule.class, courseModuleId)).thenReturn(courseModule);
+        Mockito.when(entityManager.find(ModuleType.class, courseModule.getModuleTypeId())).thenReturn(moduleType);
 //        Mockito.when(courseContentService.getUserDetailsFromToken(authToken)).thenReturn(new JSONObject());
-//
-//        CourseModule actualCourseModule = courseContentService.getModuleDetailsFull(authToken, courseModuleId);
-//
-//        assertEquals(courseModule, actualCourseModule);
-//    }
+        JSONObject userObj = new JSONObject();
+        userObj.put("id", 1);
+        userObj.put("roleName", "student");
+        doReturn(userObj).when(courseContentService).getUserDetailsFromToken(authToken);
+
+        CourseModule actualCourseModule = courseContentService.getModuleDetailsFull(authToken, courseModuleId);
+
+        assertEquals(courseModule, actualCourseModule);
+    }
 
     @Test
     public void testGetModuleDetailsFull_unauthorized() throws CustomException {
